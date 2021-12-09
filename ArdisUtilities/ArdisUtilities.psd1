@@ -10,7 +10,7 @@
   AliasesToExport   = @()
   PrivateData       = @{
     PSData = @{
-      ProjectUri = ''
+      ProjectUri = 'https://github.com/ardislu/ArdisUtilities'
     }
   }
 }

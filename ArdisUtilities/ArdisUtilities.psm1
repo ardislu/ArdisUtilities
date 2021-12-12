@@ -57,7 +57,7 @@ function Invoke-RandomFile {
     $documentExtensions = @('*.txt', '*.doc', '*.docx', '*.pdf')
 
     # Define the folder in which this command was executed
-    $rootFolder = Split-Path $script:MyInvocation.MyCommand.Path
+    $rootFolder = (Get-Location).Path
   }
 
   process {

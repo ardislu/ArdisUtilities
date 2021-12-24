@@ -46,7 +46,7 @@ function Invoke-RandomFile {
     [String]$FileCategory = 'all',
 
     [Parameter(ValueFromRemainingArguments)] # Allows dragging a subfolder to the shortcut to pass it as a parameter
-    [ValidateScript({ Test-Path -LiteralPath $_ })]
+    [ValidateScript({ Test-Path -LiteralPath $_ }, ErrorMessage = "'{0}' is not a valid path.")]
     [String]$SearchFolder
   )
 

@@ -120,7 +120,7 @@ function ConvertTo-Base64String {
   [OutputType([String])]
   [CmdletBinding()]
   param(
-    [Parameter(ValueFromPipeline)]
+    [Parameter(Mandatory, ValueFromPipeline)]
     [String]$InputString
   )
 
@@ -168,8 +168,8 @@ function Get-StringHash {
   [OutputType('Microsoft.PowerShell.Commands.FileHashInfo')]
   [CmdletBinding()]
   param(
-    [Parameter(ValueFromPipeline)]
-    [String]$InputString = '',
+    [Parameter(Mandatory, ValueFromPipeline)]
+    [String]$InputString,
 
     [ValidateSet('SHA1', 'SHA256', 'SHA384', 'SHA512', 'MD5')]
     [String]$Algorithm = 'SHA1'

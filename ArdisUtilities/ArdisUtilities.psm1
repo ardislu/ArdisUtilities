@@ -151,15 +151,12 @@ function Get-StringHash {
   .EXAMPLE
     PS> Get-StringHash "Example" -Algorithm SHA256
 
-
     Algorithm       Hash                                                                   Path
     ---------       ----                                                                   ----
     SHA256          D029F87E3D80F8FD9B1BE67C7426B4CC1FF47B4A9D0A8461C826A59D8C5EB6CD      
 
-
   .EXAMPLE
     PS> "Example from pipe" | Get-StringHash -Algorithm MD5   
-
 
     Algorithm       Hash                                                                   Path
     ---------       ----                                                                   ----

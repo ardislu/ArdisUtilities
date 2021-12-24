@@ -36,6 +36,7 @@ function Invoke-RandomFile {
     "./path/to/subfolder" folder.
   #>
 
+  [OutputType([System.Void])]
   [CmdletBinding(PositionalBinding = $false)] # Allows $SearchFolder to be passed from any position
   param(
     [ValidateRange(1, [int]::MaxValue)]
@@ -116,6 +117,7 @@ function ConvertTo-Base64String {
     RXhhbXBsZSBmcm9tIHBpcGU=
   #>
 
+  [OutputType([String])]
   [CmdletBinding()]
   param(
     [Parameter(ValueFromPipeline)]
@@ -163,6 +165,7 @@ function Get-StringHash {
     MD5             B5E635A46089D9BB16C688383D1E98C6
   #>
 
+  [OutputType('Microsoft.PowerShell.Commands.FileHashInfo')]
   [CmdletBinding()]
   param(
     [Parameter(ValueFromPipeline)]

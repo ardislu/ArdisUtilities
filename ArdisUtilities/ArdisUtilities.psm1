@@ -112,9 +112,10 @@ function ConvertTo-Base64String {
     RXhhbXBsZQ==
 
   .EXAMPLE
-    PS> "Example from pipe" | ConvertTo-Base64String
+    PS> @('example123', 'example456') | ConvertTo-Base64String
 
-    RXhhbXBsZSBmcm9tIHBpcGU=
+    ZXhhbXBsZTEyMw==
+    ZXhhbXBsZTQ1Ng==
   #>
 
   [OutputType([String])]

@@ -272,7 +272,7 @@ function Get-SizeDurationRatio {
   )
 
   process {
-    $resolvedPath = Resolve-Path $Path
+    $resolvedPath = Resolve-Path -LiteralPath $Path
     $folderPath = Split-Path $resolvedPath
     $fileName = Split-Path $resolvedPath -Leaf
 

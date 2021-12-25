@@ -207,7 +207,7 @@ $SizeDurationRatioDefaultDisplay = @{
   TypeName                  = 'SizeDurationRatio'
   DefaultDisplayPropertySet = 'Name', 'Size', 'Duration', 'Ratio'
 }
-Update-TypeData @SizeDurationRatioDefaultDisplay
+Update-TypeData @SizeDurationRatioDefaultDisplay -Force
 
 function Get-SizeDurationRatio {
   <#

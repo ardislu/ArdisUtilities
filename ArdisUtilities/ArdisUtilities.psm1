@@ -187,7 +187,7 @@ function Get-StringHash {
     $stream = [System.IO.MemoryStream]::new([byte[]][char[]]$InputString)
     $fileHashObject = Get-FileHash -InputStream $stream -Algorithm $Algorithm
 
-    [PsCustomObject] @{
+    [StringHashInfo] @{
       'Algorithm'   = $fileHashObject.Algorithm
       'Hash'        = $fileHashObject.Hash
       'InputString' = $InputString

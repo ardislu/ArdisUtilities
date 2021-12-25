@@ -4,7 +4,7 @@
   GUID              = '57a6bea3-0ea5-44b3-95d2-71d122772f1c'
   Author            = 'Ardis Lu'
   Description       = 'My personal utility functions.'
-  FunctionsToExport = @('Invoke-RandomFile', 'ConvertTo-Base64String', 'Get-StringHash')
+  FunctionsToExport = @('Invoke-RandomFile', 'ConvertTo-Base64String', 'Get-StringHash', 'Get-SizeDurationRatio')
   CmdletsToExport   = @()
   VariablesToExport = @()
   AliasesToExport   = @()

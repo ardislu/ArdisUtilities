@@ -194,3 +194,109 @@ function Get-StringHash {
     }
   }
 }
+
+class SizeDurationRatio {
+  [String]$Path
+  [String]$Name
+  [Double]$Size
+  [Double]$Duration
+  [Double]$Ratio
+}
+
+$SizeDurationRatioDefaultDisplay = @{
+  TypeName                  = 'SizeDurationRatio'
+  DefaultDisplayPropertySet = 'Name', 'Size', 'Duration', 'Ratio'
+}
+Update-TypeData @SizeDurationRatioDefaultDisplay
+
+function Get-SizeDurationRatio {
+  <#
+  .SYNOPSIS
+    Calculates a file's size (in KB) divided by its duration (in seconds).
+
+  .DESCRIPTION
+    Creates a new Shell Folder object from the file's parent folder path. Then creates a FolderItem
+    object for the file. Finally, uses the FolderItem's extended properties to fetch the duration
+    (if it exists) and calculate the ratio.
+
+  .PARAMETER Path
+    The path to the file to calculate the size/duration ratio for.
+
+  .EXAMPLE
+    PS> Get-SizeDurationRatio ./example-video.mp4 
+
+    Name                          Size Duration            Ratio
+    ----                          ---- --------            -----
+    example-video.mp4 195746.022460938      736 265.959269648013
+
+  .EXAMPLE
+    PS> @('./example-audio.mp3', './example-video.mp4') | Get-SizeDurationRatio
+
+    Name                          Size Duration            Ratio
+    ----                          ---- --------            -----
+    example-audio.mp3     5165.4140625      132 39.1319247159091
+    example-video.mp4 195746.022460938      736 265.959269648013
+
+  .EXAMPLE
+    PS> Get-SizeDurationRatio
+
+    cmdlet Get-SizeDurationRatio at command pipeline position 1
+    Supply values for the following parameters:
+    Path: ./example-video.mp4
+
+    Name                          Size Duration            Ratio
+    ----                          ---- --------            -----
+    example-video.mp4 195746.022460938      736 265.959269648013
+
+  .EXAMPLE
+    PS> Get-SizeDurationRatio ./example-document.txt
+
+    Get-SizeDurationRatio: example-document.txt does not have a duration.
+
+  .EXAMPLE
+    PS> @('./example-audio.mp3', './example-video.mp4', './example-document.txt') | Get-SizeDurationRatio
+
+    Name                          Size Duration            Ratio
+    ----                          ---- --------            -----
+    example-audio.mp3     5165.4140625      132 39.1319247159091
+    example-video.mp4 195746.022460938      736 265.959269648013
+    Get-SizeDurationRatio: example-document.txt does not have a duration.
+  #>
+
+  [OutputType([SizeDurationRatio])]
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory, ValueFromPipeline)]
+    [ValidateScript({ Test-Path -LiteralPath $_ }, ErrorMessage = "'{0}' is not a valid path.")]
+    [String]$Path
+  )
+
+  process {
+    $resolvedPath = Resolve-Path $Path
+    $folderPath = Split-Path $resolvedPath
+    $fileName = Split-Path $resolvedPath -Leaf
+
+    $folderObject = (New-Object -ComObject Shell.Application).NameSpace($folderPath)
+    $fileObject = $folderObject.ParseName($fileName)
+
+    $durationString = $folderObject.GetDetailsOf($fileObject, 27)
+
+    # If the file does not have a duration, GetDetailsOf returns an empty string
+    if ('' -eq $durationString) {
+      $PSCmdlet.WriteError((New-Object System.Management.Automation.ErrorRecord "$fileName does not have a duration.", $null, 'InvalidData', $null))
+    }
+    else {
+      $size = $fileObject.Size / 1KB
+      $duration = [System.TimeSpan]::Parse($durationString).TotalSeconds
+      $ratio = $size / $duration
+  
+      [SizeDurationRatio] @{
+        'Path'     = $resolvedPath
+        'Name'     = $fileName
+        'Size'     = $size
+        'Duration' = $duration
+        'Ratio'    = $ratio
+      }
+    }
+  }
+}

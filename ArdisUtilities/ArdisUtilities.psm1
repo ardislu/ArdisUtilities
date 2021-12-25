@@ -130,6 +130,12 @@ function ConvertTo-Base64String {
   }
 }
 
+class StringHashInfo {
+  [String]$Algorithm
+  [String]$Hash
+  [String]$InputString
+}
+
 function Get-StringHash {
   <#
   .SYNOPSIS
@@ -145,28 +151,29 @@ function Get-StringHash {
     The hashing algorithm to use. Must be an algorithm accepted by Get-FileHash.
 
   .EXAMPLE
-    PS> Get-StringHash "Example"
+    PS> Get-StringHash Example
 
-    Algorithm       Hash                                                                   Path
-    ---------       ----                                                                   ----
-    SHA1            0F01ED56A1E32A05E5EF96E4D779F34784AF9A96
-
-  .EXAMPLE
-    PS> Get-StringHash "Example" -Algorithm SHA256
-
-    Algorithm       Hash                                                                   Path
-    ---------       ----                                                                   ----
-    SHA256          D029F87E3D80F8FD9B1BE67C7426B4CC1FF47B4A9D0A8461C826A59D8C5EB6CD      
+    Algorithm Hash                                     InputString
+    --------- ----                                     -----------
+    SHA1      0F01ED56A1E32A05E5EF96E4D779F34784AF9A96 Example
 
   .EXAMPLE
-    PS> "Example from pipe" | Get-StringHash -Algorithm MD5   
+    PS> Get-StringHash Example -Algorithm SHA256
 
-    Algorithm       Hash                                                                   Path
-    ---------       ----                                                                   ----
-    MD5             B5E635A46089D9BB16C688383D1E98C6
+    Algorithm Hash                                                             InputString
+    --------- ----                                                             -----------
+    SHA256    D029F87E3D80F8FD9B1BE67C7426B4CC1FF47B4A9D0A8461C826A59D8C5EB6CD Example
+
+  .EXAMPLE
+    PS> @('Example1', 'Example2') | Get-StringHash
+
+    Algorithm Hash                                     InputString
+    --------- ----                                     -----------
+    SHA1      556A3BABEA53F0F9A2DEDB8F6A5C472FC3521615 Example1
+    SHA1      146525784A68F39E8BCC0EC7E11498C3B7B402B5 Example2
   #>
 
-  [OutputType('Microsoft.PowerShell.Commands.FileHashInfo')]
+  [OutputType([StringHashInfo])]
   [CmdletBinding()]
   param(
     [Parameter(Mandatory, ValueFromPipeline)]
@@ -178,6 +185,12 @@ function Get-StringHash {
 
   process {
     $stream = [System.IO.MemoryStream]::new([byte[]][char[]]$InputString)
-    Get-FileHash -InputStream $stream -Algorithm $Algorithm
+    $fileHashObject = Get-FileHash -InputStream $stream -Algorithm $Algorithm
+
+    [PsCustomObject] @{
+      'Algorithm'   = $fileHashObject.Algorithm
+      'Hash'        = $fileHashObject.Hash
+      'InputString' = $InputString
+    }
   }
 }

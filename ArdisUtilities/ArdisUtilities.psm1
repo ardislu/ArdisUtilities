@@ -304,3 +304,109 @@ function Get-SizeDurationRatio {
     }
   }
 }
+
+class ExtendedFileProperties {
+  [String]$Path
+  [String]$FileName
+  [String]$PropertyIndex
+  [String]$PropertyName
+  [String]$PropertyValue
+}
+
+$ExtendedFilePropertiesDisplay = @{
+  TypeName                  = 'ExtendedFileProperties'
+  DefaultDisplayPropertySet = 'FileName', 'PropertyName', 'PropertyValue'
+}
+Update-TypeData @ExtendedFilePropertiesDisplay -Force
+
+function Get-ExtendedFileProperties {
+  <#
+  .SYNOPSIS
+    Gets a file's extended file properties.
+
+  .DESCRIPTION
+    Creates a new Shell Folder object from the file's parent folder path. Then creates a FolderItem
+    object for the file. Finally, loops through all indices between 0 and 512 and returns all non-null
+    properties for that file.
+
+  .PARAMETER Path
+    The path to the file to get extended file properties for.
+
+  .EXAMPLE
+    PS> Get-ExtendedFileProperties example.mp4 
+
+    FileName    PropertyName      PropertyValue
+    --------    ------------      -------------
+    example.mp4 Name              example.mp4
+    example.mp4 Size              11.3 MB
+    example.mp4 Item type         MP4 Video File (VLC)
+    example.mp4 Date modified     12/25/2021 11:11 PM
+    example.mp4 Date created      12/26/2021 12:04 AM
+    example.mp4 Date accessed     12/26/2021 12:37 AM
+    example.mp4 Attributes        A
+    example.mp4 Perceived type    Video
+    
+    (...)
+
+  .EXAMPLE
+    PS> Get-ExtendedFileProperties example.mp4 | where PropertyName -like 'Date*'
+
+
+    FileName    PropertyName  PropertyValue
+    --------    ------------  -------------
+    example.mp4 Date modified 12/25/2021 11:11 PM
+    example.mp4 Date created  12/26/2021 12:04 AM
+    example.mp4 Date accessed 12/26/2021 12:37 AM
+
+  .EXAMPLE
+    PS> @('example.mp4', 'example2.mp4') | Get-ExtendedFileProperties | where PropertyName -in 'Size', 'Length', 'Frame width', 'Frame height', 'Total bitrate'
+
+
+    FileName     PropertyName  PropertyValue
+    --------     ------------  -------------
+    example.mp4  Size          11.3 MB
+    example.mp4  Length        00:01:27
+    example.mp4  Frame height  352
+    example.mp4  Frame width   624
+    example.mp4  Total bitrate 1091kbps
+    example2.mp4 Size          4.80 MB
+    example2.mp4 Length        00:00:41
+    example2.mp4 Frame height  720
+    example2.mp4 Frame width   1280
+    example2.mp4 Total bitrate 952kbps
+  #>
+
+  [OutputType([ExtendedFileProperties])]
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory, ValueFromPipeline)]
+    [ValidateScript({ Test-Path -LiteralPath $_ }, ErrorMessage = "'{0}' is not a valid path.")]
+    [String]$Path
+  )
+
+  begin {
+    $shell = New-Object -ComObject Shell.Application
+  }
+
+  process {
+    $resolvedPath = Resolve-Path -LiteralPath $Path
+    $folderPath = Split-Path $resolvedPath
+    $fileName = Split-Path $resolvedPath -Leaf
+
+    $folderObject = $shell.NameSpace($folderPath)
+    $fileObject = $folderObject.ParseName($fileName)
+
+    foreach ($i in 0..512) {
+      $property = $folderObject.GetDetailsOf($fileObject, $i)
+      if ($property) {
+        [ExtendedFileProperties] @{
+          Path          = $resolvedPath
+          FileName      = $fileName
+          PropertyIndex = $i
+          PropertyName  = $folderObject.GetDetailsOf($null, $i)
+          PropertyValue = $property
+        }
+      }
+    }
+  }
+}

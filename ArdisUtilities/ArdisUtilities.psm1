@@ -295,11 +295,11 @@ function Get-SizeDurationRatio {
       $ratio = $size / $duration
   
       [SizeDurationRatio] @{
-        'Path'     = $resolvedPath
-        'Name'     = $fileName
-        'Size'     = $size
-        'Duration' = $duration
-        'Ratio'    = $ratio
+        Path     = $resolvedPath
+        Name     = $fileName
+        Size     = $size
+        Duration = $duration
+        Ratio    = $ratio
       }
     }
   }

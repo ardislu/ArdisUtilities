@@ -308,7 +308,7 @@ function Get-SizeDurationRatio {
 class ExtendedFileProperties {
   [String]$Path
   [String]$FileName
-  [String]$PropertyIndex
+  [Int]$PropertyIndex
   [String]$PropertyName
   [String]$PropertyValue
 }

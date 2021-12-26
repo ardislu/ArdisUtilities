@@ -271,12 +271,16 @@ function Get-SizeDurationRatio {
     [String]$Path
   )
 
+  begin {
+    $shell = New-Object -ComObject Shell.Application
+  }
+
   process {
     $resolvedPath = Resolve-Path -LiteralPath $Path
     $folderPath = Split-Path $resolvedPath
     $fileName = Split-Path $resolvedPath -Leaf
 
-    $folderObject = (New-Object -ComObject Shell.Application).NameSpace($folderPath)
+    $folderObject = $shell.NameSpace($folderPath)
     $fileObject = $folderObject.ParseName($fileName)
 
     $durationString = $folderObject.GetDetailsOf($fileObject, 27)

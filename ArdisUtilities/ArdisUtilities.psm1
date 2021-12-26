@@ -39,7 +39,7 @@ function Invoke-RandomFile {
   [OutputType([System.Void])]
   [CmdletBinding(PositionalBinding = $false)] # Allows $SearchFolder to be passed from any position
   param(
-    [ValidateRange(1, [int]::MaxValue)]
+    [ValidateRange(1, [Int]::MaxValue)]
     [Int]$FileCount = 1,
 
     [ValidateSet('all', 'video', 'audio', 'image', 'document')]

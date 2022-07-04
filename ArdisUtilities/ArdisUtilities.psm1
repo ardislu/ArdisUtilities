@@ -410,3 +410,56 @@ function Get-ExtendedFileProperty {
     }
   }
 }
+
+function Get-DocumentationIP {
+  <#
+  .SYNOPSIS
+    Returns an IP address that is suitable for use in documentation.
+  
+  .DESCRIPTION
+    Returns a random IP address from the reserved address blocks described in RFC 5737 (for IPv4) or RFC 3849 (for IPv6).
+  
+  .PARAMETER IPVersion
+    The IP version(s) allowed for the IP address. Valid values are "4", "6", or "Both". The default is "4".
+  
+  .EXAMPLE
+    PS> Get-DocumentationIP
+    203.0.113.194
+  
+  .EXAMPLE
+    PS> Get-DocumentationIP -IPVersion 6
+    2001:0DB8:164E:C268:CBD9:91FE:A7A3:392A
+
+  .LINK
+    https://datatracker.ietf.org/doc/html/rfc5737
+
+  .LINK
+    https://datatracker.ietf.org/doc/html/rfc3849
+  #>
+
+  [OutputType([String])]
+  [CmdletBinding()]
+  param(
+    [Parameter(ValueFromPipeline)]
+    [ValidateSet('4', '6', 'Both')]
+    [String]$IPVersion = '4'
+  )
+
+  begin {
+    $ipv4Prefixes = @('192.0.2.', '198.51.100.', '203.0.113.') # CIDR ranges: 192.0.2.0/24, 198.51.100.0/24, and 203.0.113.0/24 
+    $ipv6Prefix = '2001:0DB8:' # CIDR range: 2001:DB8::/32
+  }
+
+  process {
+    if ($IPVersion -eq 'Both') {
+      $IPVersion = ('4', '6' | Get-Random)
+    }
+
+    if ($IPVersion -eq '4') {
+      ($ipv4Prefixes | Get-Random) + (Get-Random -Maximum 255)
+    }
+    else {
+      $ipv6Prefix + (Get-Random -Maximum 65535 -Count 6 | ForEach-Object { '{0:X}' -f $_ } | Join-String -Separator ':')
+    }
+  }
+}

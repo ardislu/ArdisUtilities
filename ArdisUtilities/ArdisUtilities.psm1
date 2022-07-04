@@ -422,6 +422,9 @@ function Get-DocumentationIP {
   .PARAMETER IPVersion
     The IP version(s) allowed for the IP address. Valid values are "4", "6", or "Both". The default is "4".
   
+  .PARAMETER Count
+    Specifies the number of IP addresses to return. The default is 1.
+  
   .EXAMPLE
     PS> Get-DocumentationIP
     203.0.113.194
@@ -429,6 +432,14 @@ function Get-DocumentationIP {
   .EXAMPLE
     PS> Get-DocumentationIP -IPVersion 6
     2001:0DB8:164E:C268:CBD9:91FE:A7A3:392A
+  
+  .EXAMPLE
+    PS> Get-DocumentationIP -IPVersion Both -Count 5
+    2001:0DB8:C4EB:B3F9:5605:977C:2CFC:DE8A
+    2001:0DB8:300C:F09B:B032:A1CC:2DE3:D5DE
+    198.51.100.54
+    203.0.113.68
+    2001:0DB8:B846:485:FD81:91AA:60BA:CA97
 
   .LINK
     https://datatracker.ietf.org/doc/html/rfc5737
@@ -442,7 +453,11 @@ function Get-DocumentationIP {
   param(
     [Parameter(ValueFromPipeline)]
     [ValidateSet('4', '6', 'Both')]
-    [String]$IPVersion = '4'
+    [String]$IPVersion = '4',
+
+    [Parameter(ValueFromPipeline)]
+    [ValidateRange(0, [Int]::MaxValue)]
+    [Int]$Count = 1
   )
 
   begin {
@@ -451,15 +466,22 @@ function Get-DocumentationIP {
   }
 
   process {
-    if ($IPVersion -eq 'Both') {
-      $IPVersion = ('4', '6' | Get-Random)
-    }
+    while ($Count -gt 0) {
+      if ($IPVersion -eq 'Both') {
+        $version = ('4', '6' | Get-Random)
+      }
+      else {
+        $version = $IPVersion
+      }
 
-    if ($IPVersion -eq '4') {
-      ($ipv4Prefixes | Get-Random) + (Get-Random -Maximum 255)
-    }
-    else {
-      $ipv6Prefix + (Get-Random -Maximum 65535 -Count 6 | ForEach-Object { '{0:X}' -f $_ } | Join-String -Separator ':')
+      if ($version -eq '4') {
+        ($ipv4Prefixes | Get-Random) + (Get-Random -Maximum 255)
+      }
+      else {
+        $ipv6Prefix + (Get-Random -Maximum 65535 -Count 6 | ForEach-Object { '{0:X}' -f $_ } | Join-String -Separator ':')
+      }
+
+      $Count--
     }
   }
 }

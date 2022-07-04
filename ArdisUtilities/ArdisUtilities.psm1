@@ -305,7 +305,7 @@ function Get-SizeDurationRatio {
   }
 }
 
-class ExtendedFileProperties {
+class ExtendedFileProperty {
   [String]$Path
   [String]$FileName
   [Int]$PropertyIndex
@@ -313,13 +313,13 @@ class ExtendedFileProperties {
   [String]$PropertyValue
 }
 
-$ExtendedFilePropertiesDisplay = @{
-  TypeName                  = 'ExtendedFileProperties'
+$ExtendedFilePropertyDisplay = @{
+  TypeName                  = 'ExtendedFileProperty'
   DefaultDisplayPropertySet = 'FileName', 'PropertyName', 'PropertyValue'
 }
-Update-TypeData @ExtendedFilePropertiesDisplay -Force
+Update-TypeData @ExtendedFilePropertyDisplay -Force
 
-function Get-ExtendedFileProperties {
+function Get-ExtendedFileProperty {
   <#
   .SYNOPSIS
     Gets a file's extended file properties.
@@ -333,7 +333,7 @@ function Get-ExtendedFileProperties {
     The path to the file to get extended file properties for.
 
   .EXAMPLE
-    PS> Get-ExtendedFileProperties example.mp4 
+    PS> Get-ExtendedFileProperty example.mp4 
 
     FileName    PropertyName      PropertyValue
     --------    ------------      -------------
@@ -349,7 +349,7 @@ function Get-ExtendedFileProperties {
     (...)
 
   .EXAMPLE
-    PS> Get-ExtendedFileProperties example.mp4 | where PropertyName -like 'Date*'
+    PS> Get-ExtendedFileProperty example.mp4 | where PropertyName -like 'Date*'
 
 
     FileName    PropertyName  PropertyValue
@@ -359,7 +359,7 @@ function Get-ExtendedFileProperties {
     example.mp4 Date accessed 12/26/2021 12:37 AM
 
   .EXAMPLE
-    PS> @('example.mp4', 'example2.mp4') | Get-ExtendedFileProperties | where PropertyName -in 'Size', 'Length', 'Frame width', 'Frame height', 'Total bitrate'
+    PS> @('example.mp4', 'example2.mp4') | Get-ExtendedFileProperty | where PropertyName -in 'Size', 'Length', 'Frame width', 'Frame height', 'Total bitrate'
 
 
     FileName     PropertyName  PropertyValue
@@ -376,7 +376,7 @@ function Get-ExtendedFileProperties {
     example2.mp4 Total bitrate 952kbps
   #>
 
-  [OutputType([ExtendedFileProperties])]
+  [OutputType([ExtendedFileProperty])]
   [CmdletBinding()]
   param(
     [Parameter(Mandatory, ValueFromPipeline)]
@@ -399,7 +399,7 @@ function Get-ExtendedFileProperties {
     foreach ($i in 0..512) {
       $property = $folderObject.GetDetailsOf($fileObject, $i)
       if ($property) {
-        [ExtendedFileProperties] @{
+        [ExtendedFileProperty] @{
           Path          = $resolvedPath
           FileName      = $fileName
           PropertyIndex = $i

@@ -485,3 +485,80 @@ function Get-DocumentationIP {
     }
   }
 }
+
+class PortStatus {
+  [String]$RemoteHost
+  [String]$Protocol
+  [Int]$Port
+  [Boolean]$PortOpen
+}
+
+function Test-TcpPort {
+  <#
+  .SYNOPSIS
+    Tests if a TCP port is open or not.
+
+  .DESCRIPTION
+    Uses System.Net.Sockets.TcpClient to connect to a given TCP port and return whether the remote host responded or not.
+    Similar to Test-NetConnection but the timeout duration is adjustable and much smaller by default.
+
+  .PARAMETER RemoteHost
+    The name of the remote host to test TCP ports against.
+
+  .PARAMETER Port
+    The port number to test. Valid values are integers between 1 and 65535. The default value is 80.
+
+  .PARAMETER Timeout
+    The duration (in milliseconds) to wait for a response from the remote host. The default value is 200.
+
+  .EXAMPLE
+    PS> Test-TcpPort example.com
+
+    RemoteHost  Protocol Port PortOpen
+    ----------  -------- ---- --------
+    example.com TCP      80       True
+
+  .EXAMPLE
+    PS> @(25, 80, 443) | Test-TcpPort example.com  
+
+    RemoteHost  Protocol Port PortOpen
+    ----------  -------- ---- --------
+    example.com TCP      25      False
+    example.com TCP      80       True
+    example.com TCP      443      True
+  
+  .LINK
+    Test-Connection
+  
+  .LINK
+    Test-NetConnection
+  #>
+
+  [OutputType([PortStatus])]
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory)]
+    [String]$RemoteHost,
+
+    [Parameter(ValueFromPipeline)]
+    [ValidateRange(1, 65535)]
+    [Int]$Port = 80,
+
+    [ValidateRange(1, [Int]::MaxValue)]
+    [Int]$Timeout = 200
+  )
+  
+  process {
+    $client = New-Object System.Net.Sockets.TcpClient
+    $signal = $client.BeginConnect($RemoteHost, $Port, $null, $null).AsyncWaitHandle.WaitOne($Timeout, $false)
+
+    [PortStatus] @{
+      RemoteHost = $RemoteHost
+      Protocol   = 'TCP'
+      Port       = $Port
+      PortOpen   = $signal
+    }
+
+    $client.Close()
+  }
+}

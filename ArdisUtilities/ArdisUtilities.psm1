@@ -562,3 +562,134 @@ function Test-TcpPort {
     $client.Close()
   }
 }
+
+function Get-HelpAsMarkdown {
+  <#
+  .SYNOPSIS
+    A minimal wrapper around Get-Help that outputs a markdown string.
+
+  .DESCRIPTION
+    Extracts the syntax, synopsis, description, parameters, and examples for a command from Get-Help and converts the output to markdown. 
+    This command is intended to generate the minimum viable markdown documentation for a command.
+
+  .PARAMETER Cmdlet
+    The cmdlet to generate markdown documentation for.
+
+  .EXAMPLE
+    PS> Get-HelpAsMarkdown Get-Date
+
+    # Get-Date
+
+    (...)
+
+    ## Synopsis
+    Gets the current date and time.
+    ## Description
+    The `Get-Date` cmdlet gets a DateTime object that represents the current date or a date that you specify. `Get-Date` can (...)
+
+    (...)
+  
+  .EXAMPLE
+    PS> @('Get-Date', 'Format-Table') | Get-HelpAsMarkdown
+
+    # Get-Date
+
+    (...)
+
+    ## Synopsis
+    Gets the current date and time.
+    ## Description
+    The `Get-Date` cmdlet gets a DateTime object that represents the current date or a date that you specify. `Get-Date` can (...)
+    
+    (...)
+
+    # Format-Table
+
+    (...)
+
+    ## Synopsis
+    Formats the output as a table.
+    ## Description
+    The `Format-Table` cmdlet formats the output of a command as a table with the selected properties of the object in each (...)
+
+    (...)
+
+  .EXAMPLE
+    PS> @('Get-Date', 'Format-Table') | Get-HelpAsMarkdown | Out-File -FilePath ./MyDocumentation.md
+
+    Generates a file called "MyDocumentation.md" which contains the markdown documentation for the "Get-Date" and "Format-Table" commands.
+
+  .EXAMPLE
+    PS> Get-Command -Module ArdisUtilities | Get-HelpAsMarkdown | Out-File -FilePath ./ArdisUtilities.md
+
+    Generates a file called "ArdisUtilities.md" which contains the markdown documentation for all the commands in the "ArdisUtilities" module.
+  #>
+
+  [OutputType([String])]
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory, ValueFromPipeline)]
+    [String]$Cmdlet
+  )
+
+  begin {
+    $output = New-Object System.Collections.Generic.List[String]
+    $commonParameters = @(
+      'Debug',
+      'ErrorAction',
+      'ErrorVariable',
+      'InformationAction',
+      'InformationVariable',
+      'OutVariable',
+      'OutBuffer',
+      'PipelineVariable',
+      'Verbose',
+      'WarningAction',
+      'WarningVariable'
+    )
+  }
+
+  process {
+    $help = Get-Help $Cmdlet
+
+    $output.Add("# $($help.NAME)") # Using .NAME instead of $Cmdlet will use the capitalization intended by the cmdlet author
+
+    $output.Add('```')
+    $output.Add($($help.SYNTAX | Out-String -NoNewline))
+    $output.Add('```')
+
+    $output.Add('## Synopsis')
+    $output.Add($help.SYNOPSIS)
+
+    $output.Add('## Description')
+    $output.Add($($help.DESCRIPTION | Out-String -NoNewline))
+
+    $output.Add('## Parameters')
+    foreach ($parameter in $help.parameters.parameter | Where-Object { $_.Name -notin $commonParameters }) {
+      $output.Add("### -$($parameter.Name)")
+      $output.Add($($parameter.Description | Out-String -NoNewline))
+      $output.Add('```yaml')
+      $output.Add("Type: $($parameter.Type.Name)")
+      $output.Add("Required: $($parameter.Required)")
+      $output.Add("Position: $($parameter.Position)")
+      $output.Add("Default value: $($parameter.DefaultValue)")
+      $output.Add("Accept pipeline input: $($parameter.PipelineInput)")
+      $output.Add('```')
+    }
+    
+    $output.Add('## Examples')
+    $counter = 1
+    foreach ($example in $help.examples.example) {
+      $output.Add("### Example $counter")
+      $output.Add('```powershell')
+      $output.Add("PS> $($example.Code)")
+      $output.Add($(($example.Remarks | Out-String).TrimEnd()))
+      $output.Add('```')
+      $counter++
+    }
+  }
+
+  end {
+    $output -Join "`r`n"
+  }
+}

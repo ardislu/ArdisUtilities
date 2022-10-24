@@ -215,8 +215,8 @@ function Get-SizeDurationRatio {
     Calculates a file's size (in KB) divided by its duration (in seconds).
 
   .DESCRIPTION
-    Creates a new Shell Folder object from the file's parent folder path. Then creates a FolderItem
-    object for the file. Finally, uses the FolderItem's extended properties to fetch the duration
+    Creates a new Shell Folder object from the file's parent folder path. Then creates a FolderItem 
+    object for the file. Finally, uses the FolderItem's extended properties to fetch the duration 
     (if it exists) and calculate the ratio.
 
   .PARAMETER Path
@@ -325,8 +325,8 @@ function Get-ExtendedFileProperty {
     Gets a file's extended file properties.
 
   .DESCRIPTION
-    Creates a new Shell Folder object from the file's parent folder path. Then creates a FolderItem
-    object for the file. Finally, loops through all indices between 0 and 512 and returns all non-null
+    Creates a new Shell Folder object from the file's parent folder path. Then creates a FolderItem 
+    object for the file. Finally, loops through all indices between 0 and 512 and returns all non-null 
     properties for that file.
 
   .PARAMETER Path
@@ -499,7 +499,7 @@ function Test-TcpPort {
     Tests if a TCP port is open or not.
 
   .DESCRIPTION
-    Uses System.Net.Sockets.TcpClient to connect to a given TCP port and return whether the remote host responded or not.
+    Uses System.Net.Sockets.TcpClient to connect to a given TCP port and return whether the remote host responded or not. 
     Similar to Test-NetConnection but the timeout duration is adjustable and much smaller by default.
 
   .PARAMETER RemoteHost

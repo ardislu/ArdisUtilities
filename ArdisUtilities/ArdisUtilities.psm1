@@ -349,7 +349,7 @@ function Get-ExtendedFileProperty {
     (...)
 
   .EXAMPLE
-    PS> Get-ExtendedFileProperty example.mp4 | where PropertyName -like 'Date*'
+    PS> Get-ExtendedFileProperty example.mp4 | Where-Object PropertyName -like 'Date*'
 
 
     FileName    PropertyName  PropertyValue
@@ -359,7 +359,7 @@ function Get-ExtendedFileProperty {
     example.mp4 Date accessed 12/26/2021 12:37 AM
 
   .EXAMPLE
-    PS> @('example.mp4', 'example2.mp4') | Get-ExtendedFileProperty | where PropertyName -in 'Size', 'Length', 'Frame width', 'Frame height', 'Total bitrate'
+    PS> @('example.mp4', 'example2.mp4') | Get-ExtendedFileProperty | Where-Object PropertyName -in 'Size', 'Length', 'Frame width', 'Frame height', 'Total bitrate'
 
 
     FileName     PropertyName  PropertyValue

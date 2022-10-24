@@ -1,0 +1,33 @@
+name: Documentation CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "ArdisUtilities/ArdisUtilities.psd1"
+      - "ArdisUtilities/ArdisUtilities.psm1"
+      - ".github/workflows/make-docs.yml"
+
+jobs:
+  make-docs:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build README.md
+        shell: pwsh
+        run: |
+          Import-Module ./ArdisUtilities/ -Force
+          Get-Command -Module ArdisUtilities | Get-HelpAsMarkdown | Out-File -FilePath ./README.md
+
+      - name: Push README.md to the orphan docs branch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git checkout --orphan docs
+          git reset
+          git add -f README.md
+          git commit -m "Build README.md"
+          git push -f --set-upstream origin docs

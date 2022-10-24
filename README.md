@@ -29,3 +29,7 @@ Get usage help and examples for a specific function:
 ```PowerShell
 Get-Help Invoke-RandomFile
 ```
+
+## Documentation
+
+[Click here](https://github.com/ardislu/ArdisUtilities/blob/docs/README.md) to view the full online documentation this module.

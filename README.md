@@ -4,6 +4,14 @@ A [PowerShell module](https://docs.microsoft.com/en-us/powershell/module/microso
 
 ## Installation
 
+### Using `install.ps1`
+
+```PowerShell
+(Invoke-WebRequest 'https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1').Content | Invoke-Expression
+```
+
+### Manual
+
 1. Download the `ArdisUtilities` folder
 
 2. In PowerShell:
@@ -11,6 +19,8 @@ A [PowerShell module](https://docs.microsoft.com/en-us/powershell/module/microso
 ```PowerShell
 Import-Module ./path/to/ArdisUtilities/
 ```
+
+### Persistence
 
 To persist this module on new sessions:
 - Copy the `ArdisUtilities` folder to any folder on `$env:PSModulePath` ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psmodulepath)), or

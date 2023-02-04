@@ -9,3 +9,6 @@ Expand-Archive $zipFile $tempFolder
 
 # Import the module from the extraction
 Import-Module (Join-Path $tempFolder /ArdisUtilities-main/ArdisUtilities)
+
+# Clean up the temporary folder
+Remove-Item $tempFolder -Force -Recurse

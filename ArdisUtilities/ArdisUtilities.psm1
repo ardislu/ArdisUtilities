@@ -486,6 +486,120 @@ function Get-DocumentationIP {
   }
 }
 
+function Get-DocumentationPhoneNumber {
+  <#
+  .SYNOPSIS
+    Returns a telephone number that is suitable for use in documentation.
+  
+  .DESCRIPTION
+    Returns a random North American Numbering Plan (NANP, country code "+1") telephone number from the reserved range described in ATIS-0300115.
+  
+  .PARAMETER Format
+    The format for the telephone number. Valid values are "E.164", "Spaces", "Hyphens", or "US". The default is "E.164".
+
+  .PARAMETER Specificity
+    Whether to include the area code or the country code in the telephone number. Valid values are "Country", "Area", or "Local". The default is "Country".
+  
+  .PARAMETER Count
+    Specifies the number of telephone numbers to return. The default is 1.
+  
+  .EXAMPLE
+    PS> Get-DocumentationPhoneNumber
+    +18725550194
+  
+  .EXAMPLE
+    PS> Get-DocumentationPhoneNumber -Format US
+    +1 (313) 555-0193
+  
+  .EXAMPLE
+    PS> Get-DocumentationPhoneNumber -Format US -Specificity Area -Count 5
+    (767) 555-0179
+    (985) 555-0168
+    (345) 555-0160
+    (803) 555-0190
+    (706) 555-0177
+
+  .LINK
+    https://www.nationalnanpa.com/pdf/NRUF/ATIS-0300115.pdf
+
+  .LINK
+    https://en.wikipedia.org/wiki/555_(telephone_number)
+  #>
+
+  [OutputType([String])]
+  [CmdletBinding()]
+  param(
+    [Parameter(ValueFromPipeline)]
+    [ValidateSet('E.164', 'Spaces', 'Hyphens', 'US')]
+    [String]$Format = 'E.164',
+
+    [Parameter(ValueFromPipeline)]
+    [ValidateSet('Country', 'Area', 'Local')]
+    [String]$Specificity = 'Country',
+
+    [Parameter(ValueFromPipeline)]
+    [ValidateRange(0, [Int]::MaxValue)]
+    [Int]$Count = 1
+  )
+
+  begin {
+    # Country code MUST be "+1" (NANP)
+    $country = '1'
+
+    # Valid area codes are all three digit NANP area codes that are not suspended and not reserved for special use (e.g., toll numbers)
+    # Source: https://www.bennetyee.org/ucsd-pages/area.html
+    $area = @('907', '825', '684', '264', '268', '480', '602', '623', '870', '242', '246', '441', '284', '831', '925', '909', '562', '661', '510', '650', '949', '760', '628', '415', '951', '587', '250', '236', '778', '604', '431', '204', '705', '581', '481', '418', '506', '709', '780', '902', '289', '905', '365', '437', '647', '416', '639', '306', '343', '613', '579', '450', '403', '548', '226', '519', '438', '514', '807', '867', '345', '209', '669', '408', '217', '317', '515', '774', '508', '517', '612', '320', '651', '908', '848', '732', '743', '336', '814', '205', '928', '501', '559', '720', '303', '689', '407', '478', '254', '325', '216', '670', '860', '203', '959', '475', '302', '767', '829', '809', '849', '509', '256', '319', '563', '606', '504', '985', '667', '443', '410', '810', '402', '252', '984', '919', '918', '539', '223', '717', '626', '423', '865', '434', '804', '757', '442', '239', '850', '727', '321', '754', '954', '927', '352', '863', '770', '470', '473', '671', '808', '208', '872', '312', '773', '464', '708', '765', '641', '876', '913', '225', '207', '339', '781', '857', '617', '978', '351', '679', '313', '586', '947', '248', '346', '713', '931', '763', '952', '769', '601', '636', '406', '664', '785', '859', '970', '315', '940', '817', '386', '502', '904', '404', '762', '706', '678', '574', '318', '218', '662', '660', '975', '816', '551', '201', '862', '973', '715', '775', '272', '570', '530', '916', '260', '518', '330', '234', '430', '903', '920', '603', '575', '957', '646', '332', '212', '347', '929', '718', '516', '917', '845', '631', '627', '980', '505', '701', '657', '714', '629', '615', '224', '847', '703', '571', '782', '479', '707', '779', '815', '219', '716', '585', '567', '419', '873', '819', '440', '380', '503', '458', '541', '971', '806', '878', '939', '787', '401', '435', '334', '251', '276', '310', '323', '213', '424', '818', '858', '935', '619', '805', '607', '910', '618', '812', '316', '620', '507', '228', '609', '914', '512', '361', '210', '561', '772', '725', '702', '220', '740', '520', '719', '786', '305', '912', '734', '573', '314', '557', '614', '835', '484', '610', '267', '215', '979', '936', '409', '262', '414', '721', '369', '843', '864', '803', '605', '869', '758', '784', '941', '813', '229', '337', '269', '417', '856', '283', '513', '937', '724', '608', '972', '469', '214', '682', '832', '281', '830', '956', '868', '649', '989', '906', '340', '801', '385', '802', '309', '712', '270', '301', '240', '413', '616', '231', '331', '630', '308', '828', '704', '580', '405', '412', '901', '731', '432', '915', '360', '564', '206', '202', '425', '253', '681', '304', '540', '307')
+
+    # Prefix MUST be "555"
+    $prefix = '555'
+
+    # Line number MUST be "01XX" (i.e., between 0100 and 0199), as per ATIS-0300115
+    $line = @()
+    0..99 |  ForEach-Object { $line += '01{0:d2}' -f $_ }
+
+    if ($Format -eq 'Spaces') {
+      $delimiter = ' '
+    }
+    elseif ($Format -eq 'Hyphens') {
+      $delimiter = '-'
+    }
+    else {
+      $delimiter = ''
+    }
+  }
+
+  process {
+    while ($Count -gt 0) {
+      if ($Specificity -eq 'Country') {
+        if ($Format -eq 'US') {
+          '+{0} ({1}) {2}-{3}' -f $country, (Get-Random $area), $prefix, (Get-Random $line)
+        }
+        else {
+          '+' + $country + $delimiter + (Get-Random $area) + $delimiter + $prefix + $delimiter + (Get-Random $line)
+        }
+      }
+      elseif ($Specificity -eq 'Area') {
+        if ($Format -eq 'US') {
+          '({0}) {1}-{2}' -f (Get-Random $area), $prefix, (Get-Random $line)
+        }
+        else {
+          (Get-Random $area) + $delimiter + $prefix + $delimiter + (Get-Random $line)
+        }
+      }
+      else {
+        if ($Format -eq 'US') {
+          '{0}-{1}' -f $prefix, (Get-Random $line)
+        }
+        else {
+          $prefix + $delimiter + (Get-Random $line)
+        }
+      }
+
+      $Count--
+    }
+  }
+}
+
 class PortStatus {
   [String]$RemoteHost
   [String]$Protocol

@@ -7,7 +7,7 @@ A [PowerShell module](https://docs.microsoft.com/en-us/powershell/module/microso
 ### Using `install.ps1`
 
 ```PowerShell
-(Invoke-WebRequest 'https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1').Content | Invoke-Expression
+iwr 'https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1' | iex
 ```
 
 ### Manual

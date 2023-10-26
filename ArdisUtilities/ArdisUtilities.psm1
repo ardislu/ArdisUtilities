@@ -807,3 +807,36 @@ function Get-HelpAsMarkdown {
     $output -Join "`r`n"
   }
 }
+
+function Open-ParentFolder {
+  <#
+  .SYNOPSIS
+    Opens File Explorer (explorer.exe) in the folder that contains a command.
+
+  .DESCRIPTION
+    Uses Get-Command to determine the path to an executable, then passes the path to Split-Path to get the
+    parent folder. Finally, opens the parent folder by passing the path as an argument to explorer.exe.
+
+  .PARAMETER Command
+    The name of the executable to open the File Explorer to.
+
+  .EXAMPLE
+    PS> Open-ParentFolder curl
+
+    Opens File Explorer to C:\Windows\system32\.
+  #>
+
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory, ValueFromPipeline)]
+    [String]$Command
+  )
+
+  begin {
+    $ErrorActionPreference = 'Stop'
+  }
+  
+  process {
+    explorer.exe ((Get-Command $Command).Source | Split-Path -Parent)
+  }
+}

@@ -840,3 +840,91 @@ function Open-ParentFolder {
     explorer.exe ((Get-Command $Command).Source | Split-Path -Parent)
   }
 }
+
+class SubresourceIntegrity {
+  [String]$Algorithm
+  [String]$Hash
+  [String]$Subresource
+  [String]$Integrity
+  [String]$Tag
+}
+
+$SubresourceIntegrityDisplay = @{
+  TypeName                  = 'SubresourceIntegrity'
+  DefaultDisplayPropertySet = 'Subresource', 'Integrity'
+}
+Update-TypeData @SubresourceIntegrityDisplay -Force
+
+function Get-SubresourceIntegrity {
+  <#
+  .SYNOPSIS
+    Gets the hash of a file for use in a subresource integrity (SRI) check.
+
+  .DESCRIPTION
+    Calculates the hash of the given file. Then outputs the hash in base64 with an algorithm prefix,
+    so the hash is ready to be used in a subresource integrity (SRI) check.
+
+  .PARAMETER Subresource
+    A local file to calculate the integrity hash for.
+
+  .PARAMETER Algorithm
+    The hashing algorithm to use. Must be 'SHA256', 'SHA384', or 'SHA512'.
+
+  .EXAMPLE
+    PS> Get-SubresourceIntegrity ./example.js
+    
+    Subresource  Integrity
+    -----------  ---------
+    ./example.js sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==
+  
+  .EXAMPLE
+    PS> Get-SubresourceIntegrity ./example.js -Algorithm SHA384
+
+    Subresource  Integrity
+    -----------  ---------
+    ./example.js sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL
+
+  .EXAMPLE
+    PS> @('./example1.js', './example2.js', './example3.js') | Get-SubresourceIntegrity
+
+    Subresource   Integrity
+    -----------   ---------
+    ./example1.js sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==
+    ./example2.js sha512-UxkBbtNVXoNNNOwpKb3EdOtjmGNg3YbF6dq3ns6iPdrcy/WxOz+atgbe8USrqZk8vpKu4O2Rdw3U+ctPgcgwZg==
+    ./example3.js sha512-f0Km8/mTw5HtTOWjPoYhh+SCxl7GCgdVE+SvPRzHqNUzzt+QpXTevZzqFC5KKHXSbMny5VR9/qadHYSGluNDEw==
+
+  .LINK
+    https://www.w3.org/TR/SRI/
+
+  .LINK
+    https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
+  #>
+
+  [OutputType([SubresourceIntegrity])]
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory, ValueFromPipeline)]
+    [ValidateScript({ Test-Path -LiteralPath $_ -PathType Leaf }, ErrorMessage = "'{0}' is not a valid file.")]
+    [String]$Subresource,
+
+    [ValidateSet('SHA256', 'SHA384', 'SHA512')]
+    [String]$Algorithm = 'SHA512'
+  )
+
+  process {
+    $hash = (Get-FileHash -LiteralPath $Subresource -Algorithm $Algorithm).Hash
+    $bytes = [System.Convert]::FromHexString($hash)
+    $b64 = [System.Convert]::ToBase64String($bytes)
+
+    $integrity = "$($Algorithm.ToLower())-$b64"
+    $tag = "<script href=`"`" integrity=`"$integrity`" crossorigin></script>"
+
+    [SubresourceIntegrity] @{
+      Algorithm   = $Algorithm
+      Hash        = $hash
+      Subresource = $Subresource
+      Integrity   = $integrity
+      Tag         = $tag
+    }
+  }
+}

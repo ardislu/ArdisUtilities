@@ -917,7 +917,7 @@ function Get-SubresourceIntegrity {
     $b64 = [System.Convert]::ToBase64String($bytes)
 
     $integrity = "$($Algorithm.ToLower())-$b64"
-    $tag = "<script href=`"`" integrity=`"$integrity`" crossorigin></script>"
+    $tag = "<script href=`"$Subresource`" integrity=`"$integrity`" crossorigin></script>"
 
     [SubresourceIntegrity] @{
       Algorithm   = $Algorithm

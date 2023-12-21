@@ -861,28 +861,29 @@ function Get-SubresourceIntegrity {
     Gets the hash of a file for use in a subresource integrity (SRI) check.
 
   .DESCRIPTION
+    Accepts either a local file path OR a URL to a file as input. If the input is a URL, downloads the file.
     Calculates the hash of the given file. Then outputs the hash in base64 with an algorithm prefix,
     so the hash is ready to be used in a subresource integrity (SRI) check.
 
   .PARAMETER Subresource
-    A local file to calculate the integrity hash for.
+    A local file OR a URL to a file to calculate the integrity hash for.
 
   .PARAMETER Algorithm
     The hashing algorithm to use. Must be 'SHA256', 'SHA384', or 'SHA512'.
 
   .EXAMPLE
     PS> Get-SubresourceIntegrity ./example.js
-    
-    Subresource  Integrity
-    -----------  ---------
-    ./example.js sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==
-  
-  .EXAMPLE
-    PS> Get-SubresourceIntegrity ./example.js -Algorithm SHA384
 
     Subresource  Integrity
     -----------  ---------
-    ./example.js sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL
+    ./example.js sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==
+
+  .EXAMPLE
+    PS> Get-SubresourceIntegrity "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" -Algorithm SHA384
+
+    Subresource                                                                  Integrity
+    -----------                                                                  ---------
+    https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL
 
   .EXAMPLE
     PS> @('./example1.js', './example2.js', './example3.js') | Get-SubresourceIntegrity
@@ -904,7 +905,6 @@ function Get-SubresourceIntegrity {
   [CmdletBinding()]
   param(
     [Parameter(Mandatory, ValueFromPipeline)]
-    [ValidateScript({ Test-Path -LiteralPath $_ -PathType Leaf }, ErrorMessage = "'{0}' is not a valid file.")]
     [String]$Subresource,
 
     [ValidateSet('SHA256', 'SHA384', 'SHA512')]
@@ -912,7 +912,23 @@ function Get-SubresourceIntegrity {
   )
 
   process {
-    $hash = (Get-FileHash -LiteralPath $Subresource -Algorithm $Algorithm).Hash
+    $isLocalFile = Test-Path -LiteralPath $Subresource -PathType Leaf
+
+    if (!$isLocalFile) {
+      try {
+        $stream = (Invoke-WebRequest -Uri $Subresource).RawContentStream
+      }
+      catch {
+        throw "$Subresource is not a valid file or URL."
+      }
+    }
+
+    if ($isLocalFile) {
+      $hash = (Get-FileHash -LiteralPath $Subresource -Algorithm $Algorithm).Hash
+    }
+    else {
+      $hash = (Get-FileHash -InputStream $stream -Algorithm $Algorithm).Hash
+    }
     $bytes = [System.Convert]::FromHexString($hash)
     $b64 = [System.Convert]::ToBase64String($bytes)
 

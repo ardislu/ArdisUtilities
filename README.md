@@ -28,6 +28,7 @@ Import-Module ./path/to/ArdisUtilities/
 
 To persist this module on new sessions:
 - Copy the `ArdisUtilities` folder to any folder on `$env:PSModulePath` ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psmodulepath)), or
+- Register this module using [`Register-PSRepository`](https://learn.microsoft.com/en-us/powershell/module/powershellget/register-psrepository) then install the module using [`Install-Module`](https://learn.microsoft.com/en-us/powershell/module/powershellget/install-module) ([reference](https://stackoverflow.com/questions/49987884/how-to-install-update-a-powershell-module-from-a-local-folder-set-up-an-intern)), or
 - Add the `Import-Module` command to your `$profile` ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles))
 
 ## Usage

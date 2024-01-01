@@ -6,11 +6,15 @@ A [PowerShell module](https://docs.microsoft.com/en-us/powershell/module/microso
 
 ### Using `install.ps1`
 
+The `install.ps1` script will download the module to a temporary folder then use [`Import-Module`](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/import-module) to add the module to the **current session** only. To keep the module installed on future sessions, see [Persistence](https://github.com/ardislu/ArdisUtilities#persistence).
+
 ```PowerShell
 iwr 'https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1' | iex
 ```
 
 ### Manual
+
+You can also add the module to the current session manually by following these steps:
 
 1. Download the `ArdisUtilities` folder
 

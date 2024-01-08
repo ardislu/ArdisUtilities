@@ -805,7 +805,8 @@ function Get-HelpAsMarkdown {
     if ($null -ne $help.relatedLinks) {
       $output.Add('## Related Links')
       foreach ($link in $help.relatedLinks.navigationLink) {
-        $output.Add($link.uri)
+        $text = $link.linkText ?? $link.uri
+        $output.Add("- $($text)")
       }
     }
   }

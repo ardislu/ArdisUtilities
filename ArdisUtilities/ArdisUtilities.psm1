@@ -766,17 +766,17 @@ function Get-HelpAsMarkdown {
   process {
     $help = Get-Help $Cmdlet
 
-    $output.Add("# $($help.NAME)") # Using .NAME instead of $Cmdlet will use the capitalization intended by the cmdlet author
+    $output.Add("# $($help.Name)") # Using .Name instead of $Cmdlet will use the capitalization intended by the cmdlet author
 
     $output.Add('```')
-    $output.Add($($help.SYNTAX | Out-String -NoNewline))
+    $output.Add($($help.syntax | Out-String -NoNewline))
     $output.Add('```')
 
     $output.Add('## Synopsis')
-    $output.Add($help.SYNOPSIS)
+    $output.Add($help.Synopsis)
 
     $output.Add('## Description')
-    $output.Add($($help.DESCRIPTION | Out-String -NoNewline))
+    $output.Add($($help.description | Out-String -NoNewline))
 
     $output.Add('## Parameters')
     foreach ($parameter in $help.parameters.parameter | Where-Object { $_.Name -notin $commonParameters }) {

@@ -801,6 +801,13 @@ function Get-HelpAsMarkdown {
       $output.Add('```')
       $counter++
     }
+
+    if ($null -ne $help.relatedLinks) {
+      $output.Add('## Related Links')
+      foreach ($link in $help.relatedLinks.navigationLink) {
+        $output.Add($link.uri)
+      }
+    }
   }
 
   end {

@@ -8,15 +8,27 @@ Requires [PowerShell 7+](https://github.com/PowerShell/PowerShell), which is [di
 
 ### Using `install.ps1`
 
-The `install.ps1` script will download the module to a temporary folder then use [`Import-Module`](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/import-module) to add the module to the **current session** only. To keep the module installed on future sessions, see [Persistence](https://github.com/ardislu/ArdisUtilities#persistence).
+Use `install.ps1` to install or upgrade `ArdisUtilities`.
+
+By default, the module is added to the **current session** only:
 
 ```PowerShell
-iwr 'https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1' | iex
+# ArdisUtilities will only be available for the current session
+irm 'https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1' | iex
 ```
+
+To keep the module installed on future sessions, pass the `-Persist` parameter:
+
+```PowerShell
+# ArdisUtilities will be installed to $HOME/Documents/PowerShell/Modules
+"& { $(irm https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1) } -Persist" | iex
+```
+
+To uninstall, delete the `ArdisUtilities` folder within `$HOME/Documents/PowerShell/Modules`.
 
 ### Manual
 
-You can also add the module to the current session manually by following these steps:
+You can add the module to the current session manually by following these steps:
 
 1. Download the `ArdisUtilities` folder
 
@@ -25,8 +37,6 @@ You can also add the module to the current session manually by following these s
 ```PowerShell
 Import-Module ./path/to/ArdisUtilities/
 ```
-
-### Persistence
 
 To persist this module on new sessions:
 - Copy the `ArdisUtilities` folder to any folder on `$env:PSModulePath` ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psmodulepath)), or

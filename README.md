@@ -2,6 +2,8 @@
 
 A [PowerShell module](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_modules) containing my personal utility functions.
 
+Requires [PowerShell 7+](https://github.com/PowerShell/PowerShell), which is [different from](https://ardislu.dev/powershell-versions) Windows PowerShell (PowerShell 5).
+
 ## Installation
 
 ### Using `install.ps1`

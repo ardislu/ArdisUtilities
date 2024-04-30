@@ -1,4 +1,11 @@
 function Install-ArdisUtilities {
+  [OutputType([System.Void])]
+  [CmdletBinding()]
+  param(
+    [Parameter()]
+    [Switch]$Persist
+  )
+
   begin {
     # Create a temporary working folder
     $tempFolder = Join-Path $Env:Temp $(New-Guid)
@@ -10,9 +17,18 @@ function Install-ArdisUtilities {
     $zipFile = Join-Path $tempFolder /ArdisUtilities.zip
     Invoke-WebRequest 'https://github.com/ardislu/ArdisUtilities/archive/refs/heads/main.zip' -OutFile $zipFile
     Expand-Archive $zipFile $tempFolder
+    $module = Join-Path $tempFolder 'ArdisUtilities-main/ArdisUtilities'
 
     # Import the module from the extraction
-    Import-Module (Join-Path $tempFolder /ArdisUtilities-main/ArdisUtilities)
+    Import-Module $module
+
+    if ($Persist) {
+      $destination = "$HOME/Documents/PowerShell/Modules" # Default path for persistent PowerShell modules
+      if (Test-Path -LiteralPath "$destination/ArdisUtilities") {
+        Remove-Item "$destination/ArdisUtilities" -Force -Recurse
+      }
+      Copy-Item -Path $module -Destination $destination -Recurse
+    }
   }
 
   clean {
@@ -21,4 +37,4 @@ function Install-ArdisUtilities {
   }
 }
 
-Install-ArdisUtilities
+Install-ArdisUtilities @args

@@ -21,7 +21,7 @@ To keep the module installed on future sessions, pass the `-Persist` parameter:
 
 ```PowerShell
 # ArdisUtilities will be installed to $HOME/Documents/PowerShell/Modules
-"& { $(irm https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1) } -Persist" | iex
+"& { $(irm 'https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1') } -Persist" | iex
 ```
 
 To uninstall, delete the `ArdisUtilities` folder within `$HOME/Documents/PowerShell/Modules`.

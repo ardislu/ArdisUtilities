@@ -1,3 +1,36 @@
+<#
+.SYNOPSIS
+  Install the ArdisUtilities module.
+
+.DESCRIPTION
+  By default, the ArdisUtilities module will be installed for the current session only.
+  If '-Persist' is specified, then the ArdisUtilities module will be installed to 
+  the "$HOME/Documents/PowerShell/Modules" folder.
+
+.PARAMETER Persist
+  Install the ArdisUtilities module to "$HOME/Documents/PowerShell/Modules".
+
+.EXAMPLE
+  PS> ./install.ps1
+
+  Installs ArdisUtilities in the current session only.
+
+.EXAMPLE
+  PS> ./install.ps1 -Persist
+
+  Installs ArdisUtilities to "$HOME/Documents/PowerShell/Modules", persisting the module across sessions.
+
+.EXAMPLE
+  PS> irm 'https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1' | iex
+
+  Invoke this script from GitHub, installing ArdisUtilities in the current session only.
+
+.EXAMPLE
+  PS> "& { $(irm 'https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1') } -Persist" | iex
+
+  Invoke this script from GitHub, installing ArdisUtilities to "$HOME/Documents/PowerShell/Modules" and
+  persisting the module across sessions.
+#>
 [OutputType([System.Void])]
 [CmdletBinding()]
 param(

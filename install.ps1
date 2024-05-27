@@ -64,7 +64,7 @@ function Install-ArdisUtilities {
     Import-Module $module
 
     if ($Persist) {
-      $destination = ($env:PSModulePath -Split ';')[0]
+      $destination = ($env:PSModulePath -Split [IO.Path]::PathSeparator)[0]
 
       # If no folder is found from PSModulePath, use default location for the CurrentUser scope. See:
       # https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psmodulepath

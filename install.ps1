@@ -49,7 +49,7 @@ function Install-ArdisUtilities {
 
   begin {
     # Create a temporary working folder
-    $tempFolder = Join-Path $Env:Temp $(New-Guid)
+    $tempFolder = Join-Path $([IO.Path]::GetTempPath()) $(New-Guid)
     New-Item -Type Directory -Path $tempFolder | Out-Null
   }
 

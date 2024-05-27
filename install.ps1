@@ -77,8 +77,17 @@ process {
     if (Test-Path -LiteralPath "$destination/ArdisUtilities") {
       Remove-Item "$destination/ArdisUtilities" -Force -Recurse
     }
+
     Copy-Item -Path $module -Destination $destination -Recurse
+    Write-Output "Successfully installed ArdisUtilities to `"$(Resolve-Path "$destination/ArdisUtilities")`"."
   }
+  else {
+    Write-Output "Successfully installed ArdisUtilities in the current session."
+  }
+
+  Write-Output ""
+  Write-Output "Show all ArdisUtilities commands:"
+  Write-Output "Get-Command -Module ArdisUtilities"
 }
 
 clean {

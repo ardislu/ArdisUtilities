@@ -952,3 +952,76 @@ function Get-SubresourceIntegrity {
     }
   }
 }
+
+function Open-TemporaryBrowser {
+  <#
+  .SYNOPSIS
+    Opens a new web browser instance with a temporary profile. Optionally passes flags to the temporary instance.
+
+  .DESCRIPTION
+    Finds the full path to the web browser, then passes a temporary profile to open a new isolated instance of the application.
+    
+  .PARAMETER Browser
+    The web browser to open. Must be 'Brave', 'Chrome', or 'Edge'. Defaults to 'Chrome'.
+
+  .PARAMETER CORS
+    Pass the --disable-web-security flag to disable the same-origin policy, which disables CORS restrictions.
+
+  .EXAMPLE
+    PS> Open-TemporaryBrowser -CORS
+
+    Opens a new isolated instance of Chrome with the same-origin policy disabled.
+  #>
+
+  [OutputType([System.Void])]
+  [CmdletBinding()]
+  param(
+    [ValidateSet('Brave', 'Chrome', 'Edge')]
+    [String]$Browser = 'Chrome',
+
+    [Switch]$CORS
+  )
+
+  begin {
+    # Retrieve full paths to Chromium browsers
+    # Check the registry key for the Start Menu executable, then the key for the Win + R executable, then fallback to hardcoded default path
+    # Wrapping in try/catch is required because -ErrorAction is ignored for terminating errors
+    foreach ($key in @('Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Brave\shell\open\command', 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\brave.exe')) {
+      try {
+        $bravePath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)'
+      }
+      catch {}
+    }
+    $bravePath ??= 'C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe'
+
+    foreach ($key in @('Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Google Chrome\shell\open\command', 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe')) {
+      try {
+        $chromePath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)'
+      }
+      catch {}
+    }
+    $chromePath ??= 'C:\Program Files (x86)\Google\Chrome Dev\Application\chrome.exe'
+
+    foreach ($key in @('Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Microsoft Edge\shell\open\command', 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe')) {
+      try {
+        $edgePath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)'
+      }
+      catch {}
+    }
+    $edgePath ??= 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
+  }
+
+  process {
+    switch ($Browser) {
+      'Brave' { $execPath = $bravePath }
+      'Chrome' { $execPath = $chromePath }
+      'Edge' { $execPath = $edgePath }
+    }
+
+    $temp = Join-Path $Env:Temp $(New-Guid)
+
+    # Directly using the call expression (&) will not work, must either wrap it inside Invoke-Expression or use System.Diagnostics.Process::Start
+    # Invoke-Expression "& $execPath --user-data-dir=`"$temp`" $(if ($CORS) {'--disable-web-security'})"
+    [System.Diagnostics.Process]::Start($execPath, "--user-data-dir=`"$temp`" $(if ($CORS) {'--disable-web-security'})") | Out-Null
+  }
+}

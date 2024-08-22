@@ -48,6 +48,15 @@ function Install-ArdisUtilities {
   )
 
   begin {
+    if (($PSVersionTable.PSVersion.Major) -lt 7) {
+      throw @"
+Error: PowerShell 7 or later is required to install ArdisUtilities.
+Upgrade PowerShell:
+
+    https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell
+"@
+    }
+
     # Create a temporary working folder
     $tempFolder = Join-Path $([IO.Path]::GetTempPath()) $(New-Guid)
     New-Item -Type Directory -Path $tempFolder | Out-Null

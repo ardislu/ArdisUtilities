@@ -767,47 +767,65 @@ function Get-HelpAsMarkdown {
 
   process {
     $help = Get-Help $Cmdlet
+    $properties = $help.PSobject.Properties.Name
 
-    $output.Add("# $($help.Name)") # Using .Name instead of $Cmdlet will use the capitalization intended by the cmdlet author
+    if ($properties -contains 'Name') {
+      $output.Add("# $($help.Name)") # Using .Name instead of $Cmdlet will use the capitalization intended by the cmdlet author
+    }
 
-    $output.Add('```')
-    $output.Add($($help.syntax | Out-String -NoNewline))
-    $output.Add('```')
-
-    $output.Add('## Synopsis')
-    $output.Add($help.Synopsis)
-
-    $output.Add('## Description')
-    $output.Add($($help.description | Out-String -NoNewline))
-
-    $output.Add('## Parameters')
-    foreach ($parameter in $help.parameters.parameter | Where-Object { $_.Name -notin $commonParameters }) {
-      $output.Add("### -$($parameter.Name)")
-      $output.Add($($parameter.Description | Out-String -NoNewline))
-      $output.Add('```yaml')
-      $output.Add("Type: $($parameter.Type.Name)")
-      $output.Add("Required: $($parameter.Required)")
-      $output.Add("Position: $($parameter.Position)")
-      $output.Add("Default value: $($parameter.DefaultValue)")
-      $output.Add("Accept pipeline input: $($parameter.PipelineInput)")
+    if ($properties -contains 'syntax') {
       $output.Add('```')
+      $output.Add($($help.syntax | Out-String -NoNewline))
+      $output.Add('```')
+    }
+
+    if ($properties -contains 'Synopsis') {
+      $output.Add('## Synopsis')
+      $output.Add($help.Synopsis)
+    }
+
+    if ($properties -contains 'description') {
+      $output.Add('## Description')
+      $output.Add($($help.description | Out-String -NoNewline))
+    }
+
+    if ($properties -contains 'parameters') {
+      $output.Add('## Parameters')
+      foreach ($parameter in $help.parameters.parameter | Where-Object { $_.Name -notin $commonParameters }) {
+        $output.Add("### -$($parameter.Name)")
+        $output.Add($($parameter.Description | Out-String -NoNewline))
+        $output.Add('```yaml')
+        $output.Add("Type: $($parameter.Type.Name)")
+        $output.Add("Required: $($parameter.Required)")
+        $output.Add("Position: $($parameter.Position)")
+        $output.Add("Default value: $($parameter.DefaultValue)")
+        $output.Add("Accept pipeline input: $($parameter.PipelineInput)")
+        $output.Add('```')
+      }
     }
     
-    $output.Add('## Examples')
-    $counter = 1
-    foreach ($example in $help.examples.example) {
-      $output.Add("### Example $counter")
-      $output.Add('```powershell')
-      $output.Add("PS> $($example.Code)")
-      $output.Add($(($example.Remarks | Out-String).TrimEnd()))
-      $output.Add('```')
-      $counter++
+    if ($properties -contains 'examples') {
+      $output.Add('## Examples')
+      $counter = 1
+      foreach ($example in $help.examples.example) {
+        $output.Add("### Example $counter")
+        $output.Add('```powershell')
+        $output.Add("PS> $($example.Code)")
+        $output.Add($(($example.Remarks | Out-String).TrimEnd()))
+        $output.Add('```')
+        $counter++
+      }
     }
 
-    if ($null -ne $help.relatedLinks) {
+    if ($properties -contains 'relatedLinks') {
       $output.Add('## Related Links')
       foreach ($link in $help.relatedLinks.navigationLink) {
-        $text = $link.linkText ?? $link.uri
+        if ('linkText' -in $link.PSobject.Properties.Name) {
+          $text = $link.linkText
+        }
+        else {
+          $text = $link.uri
+        }
         $output.Add("- $($text)")
       }
     }

@@ -1008,7 +1008,7 @@ function Open-TemporaryBrowser {
     # Wrapping in try/catch is required because -ErrorAction is ignored for terminating errors
     foreach ($key in @('Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Brave\shell\open\command', 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\brave.exe')) {
       try {
-        $bravePath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)'
+        $bravePath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)' -ErrorAction SilentlyContinue
       }
       catch {}
     }
@@ -1016,7 +1016,7 @@ function Open-TemporaryBrowser {
 
     foreach ($key in @('Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Google Chrome\shell\open\command', 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe')) {
       try {
-        $chromePath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)'
+        $chromePath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)' -ErrorAction SilentlyContinue
       }
       catch {}
     }
@@ -1024,7 +1024,7 @@ function Open-TemporaryBrowser {
 
     foreach ($key in @('Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Microsoft Edge\shell\open\command', 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe')) {
       try {
-        $edgePath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)'
+        $edgePath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)' -ErrorAction SilentlyContinue
       }
       catch {}
     }
@@ -1036,6 +1036,11 @@ function Open-TemporaryBrowser {
       'Brave' { $execPath = $bravePath }
       'Chrome' { $execPath = $chromePath }
       'Edge' { $execPath = $edgePath }
+    }
+    $execPath = $execPath.Replace("`"", '') # Registry values have leading and trailing quote literals in the string
+
+    if (-not(Test-Path -LiteralPath $execPath -PathType Leaf)) {
+      throw "Could not find browser `"$Browser`" at path `"$execPath`", aborting."
     }
 
     $temp = Join-Path $Env:Temp $(New-Guid)

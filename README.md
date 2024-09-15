@@ -24,7 +24,11 @@ To keep the module installed on future sessions, pass the `-Persist` parameter:
 "& { $(irm 'https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1') } -Persist" | iex
 ```
 
-To uninstall, delete the `ArdisUtilities` folder within the first location in `$env:PSModulePath` (typically `$HOME\Documents\PowerShell\Modules` (Windows) or `$HOME/.local/share/powershell/Modules` (non-Windows)).
+To uninstall, delete the `ArdisUtilities` folder. You can open this folder in your file explorer using:
+
+```PowerShell
+Open-ParentFolder (Get-Module -Name ArdisUtilities).Path
+```
 
 ### Manual
 

@@ -27,7 +27,7 @@ To keep the module installed on future sessions, pass the `-Persist` parameter:
 To uninstall, delete the `ArdisUtilities` folder. You can open this folder in your file explorer using:
 
 ```PowerShell
-Open-ParentFolder (Get-Module -Name ArdisUtilities).Path
+Open-ParentFolder (Get-Module -Name ArdisUtilities -ListAvailable).Path
 ```
 
 ### Manual

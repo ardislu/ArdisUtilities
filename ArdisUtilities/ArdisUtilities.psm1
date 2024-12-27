@@ -1051,3 +1051,24 @@ function Open-TemporaryBrowser {
     [System.Diagnostics.Process]::Start($execPath, "--user-data-dir=`"$temp`" $(if ($CORS) {'--disable-web-security'})") | Out-Null
   }
 }
+
+function Open-HistoryFile {
+  <#
+  .SYNOPSIS
+    Opens the current session's persistent history file in a text editor.
+
+  .DESCRIPTION
+    Besides the in-memory session history which can be retrieved using Get-History, the PSReadLine module also
+    maintains a persistent history of commands in a text file saved on disk. This command locates this text
+    file using (Get-PSReadlineOption).HistorySavePath then opens it using Invoke-Item.
+
+  .EXAMPLE
+    PS> Open-HistoryFile
+
+    Opens the default text editor on the persistent history file.
+  #>
+
+  process {
+    Invoke-Item (Get-PSReadlineOption).HistorySavePath
+  }
+}

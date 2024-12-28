@@ -790,7 +790,7 @@ function Get-HelpAsMarkdown {
       $output.Add($($help.description | Out-String -NoNewline))
     }
 
-    if ($properties -contains 'parameters') {
+    if ('' -ne $help.parameters) {
       $output.Add('## Parameters')
       foreach ($parameter in $help.parameters.parameter | Where-Object { $_.Name -notin $commonParameters }) {
         $output.Add("### -$($parameter.Name)")

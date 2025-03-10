@@ -974,6 +974,8 @@ function Get-SubresourceIntegrity {
   }
 }
 
+New-Alias -Name sri -Value Get-SubresourceIntegrity
+
 function Open-TemporaryBrowser {
   <#
   .SYNOPSIS

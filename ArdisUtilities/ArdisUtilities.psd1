@@ -7,7 +7,7 @@
   FunctionsToExport = @('Invoke-RandomFile', 'ConvertTo-Base64String', 'Get-StringHash', 'Get-SizeDurationRatio', 'Get-ExtendedFileProperty', 'Get-DocumentationIP', 'Get-DocumentationPhoneNumber', 'Test-TcpPort', 'Get-HelpAsMarkdown', 'Open-ParentFolder', 'Get-SubresourceIntegrity', 'Open-TemporaryBrowser', 'Open-HistoryFile')
   CmdletsToExport   = @()
   VariablesToExport = @()
-  AliasesToExport   = @()
+  AliasesToExport   = @('sri')
   PrivateData       = @{
     PSData = @{
       ProjectUri = 'https://github.com/ardislu/ArdisUtilities'

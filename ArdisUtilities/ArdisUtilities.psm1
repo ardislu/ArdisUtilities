@@ -833,7 +833,7 @@ function Get-HelpAsMarkdown {
   }
 
   end {
-    $output -Join "`r`n"
+    $output -Join [Environment]::NewLine
   }
 }
 

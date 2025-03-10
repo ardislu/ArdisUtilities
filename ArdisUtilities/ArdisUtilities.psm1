@@ -780,6 +780,15 @@ function Get-HelpAsMarkdown {
       $output.Add('```')
     }
 
+    try {
+      $aliases = Get-Alias -Definition $Cmdlet -ErrorAction Stop
+      $output.Add('## Aliases')
+      $output.Add('```')
+      $output.Add($($aliases -Join [Environment]::NewLine | Out-String).Trim())
+      $output.Add('```')
+    }
+    catch {}
+
     if ($properties -contains 'Synopsis') {
       $output.Add('## Synopsis')
       $output.Add($help.Synopsis)

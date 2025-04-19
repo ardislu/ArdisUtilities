@@ -137,6 +137,7 @@ class StringHashInfo {
   [String]$Algorithm
   [String]$Hash
   [String]$InputString
+  [String]$Encoding
 }
 
 function Get-StringHash {
@@ -152,28 +153,38 @@ function Get-StringHash {
   
   .PARAMETER Algorithm
     The hashing algorithm to use. Must be an algorithm accepted by Get-FileHash.
+  
+  .PARAMETER Encoding
+    The encoding format for the hash. Supported values are "hex" and "base64".
 
   .EXAMPLE
     PS> Get-StringHash Example
 
-    Algorithm Hash                                     InputString
-    --------- ----                                     -----------
-    SHA1      0F01ED56A1E32A05E5EF96E4D779F34784AF9A96 Example
+    Algorithm Hash                                     InputString Encoding
+    --------- ----                                     ----------- --------
+    SHA1      0F01ED56A1E32A05E5EF96E4D779F34784AF9A96 Example     hex
 
   .EXAMPLE
     PS> Get-StringHash Example -Algorithm SHA256
 
-    Algorithm Hash                                                             InputString
-    --------- ----                                                             -----------
-    SHA256    D029F87E3D80F8FD9B1BE67C7426B4CC1FF47B4A9D0A8461C826A59D8C5EB6CD Example
+    Algorithm Hash                                                             InputString Encoding
+    --------- ----                                                             ----------- --------
+    SHA256    D029F87E3D80F8FD9B1BE67C7426B4CC1FF47B4A9D0A8461C826A59D8C5EB6CD Example     hex
+
+  .EXAMPLE
+    PS> Get-StringHash Example -Algorithm SHA256 -Encoding base64
+
+    Algorithm Hash                                         InputString Encoding
+    --------- ----                                         ----------- --------
+    SHA256    0Cn4fj2A+P2bG+Z8dCa0zB/0e0qdCoRhyCalnYxets0= Example     base64
 
   .EXAMPLE
     PS> @('Example1', 'Example2') | Get-StringHash
 
-    Algorithm Hash                                     InputString
-    --------- ----                                     -----------
-    SHA1      556A3BABEA53F0F9A2DEDB8F6A5C472FC3521615 Example1
-    SHA1      146525784A68F39E8BCC0EC7E11498C3B7B402B5 Example2
+    Algorithm Hash                                     InputString Encoding
+    --------- ----                                     ----------- --------
+    SHA1      556A3BABEA53F0F9A2DEDB8F6A5C472FC3521615 Example1    hex
+    SHA1      146525784A68F39E8BCC0EC7E11498C3B7B402B5 Example2    hex
   #>
 
   [OutputType([StringHashInfo])]
@@ -183,17 +194,27 @@ function Get-StringHash {
     [String]$InputString,
 
     [ValidateSet('SHA1', 'SHA256', 'SHA384', 'SHA512', 'MD5')]
-    [String]$Algorithm = 'SHA1'
+    [String]$Algorithm = 'SHA1',
+    
+    [ValidateSet('hex', 'base64')]
+    [String]$Encoding = 'hex'
   )
 
   process {
     $stream = [System.IO.MemoryStream]::new([byte[]][char[]]$InputString)
     $fileHashObject = Get-FileHash -InputStream $stream -Algorithm $Algorithm
+    $hash = $fileHashObject.Hash
+
+    if ('base64' -eq $Encoding) {
+      $bytes = [System.Convert]::FromHexString($hash)
+      $hash = [Convert]::ToBase64String($bytes)
+    }
 
     [StringHashInfo] @{
       'Algorithm'   = $fileHashObject.Algorithm
-      'Hash'        = $fileHashObject.Hash
+      'Hash'        = $hash
       'InputString' = $InputString
+      'Encoding'    = $Encoding
     }
   }
 }

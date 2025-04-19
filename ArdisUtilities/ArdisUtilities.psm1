@@ -983,6 +983,7 @@ function Get-SubresourceIntegrity {
   }
 }
 
+if (Test-Path alias:sri) { Remove-Alias sri }
 New-Alias -Name sri -Value Get-SubresourceIntegrity
 
 function Open-TemporaryBrowser {

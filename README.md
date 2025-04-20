@@ -13,14 +13,12 @@ Use `install.ps1` to install or upgrade `ArdisUtilities`.
 By default, the module is added to the **current session** only:
 
 ```PowerShell
-# ArdisUtilities will only be available for the current session
 irm 'https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1' | iex
 ```
 
 To keep the module installed on future sessions, pass the `-Persist` parameter:
 
 ```PowerShell
-# ArdisUtilities will be installed to $HOME/Documents/PowerShell/Modules
 "& { $(irm 'https://raw.githubusercontent.com/ardislu/ArdisUtilities/main/install.ps1') } -Persist" | iex
 ```
 

@@ -146,13 +146,13 @@ function Get-StringHash {
     Hashes a string.
 
   .DESCRIPTION
-    Converts a string into an input stream, then passes that stream to Get-FileHash to hash the string.
+    Converts a string into bytes, then hashes those bytes and outputs the hash as a string.
 
   .PARAMETER InputString
     The string to hash.
   
   .PARAMETER Algorithm
-    The hashing algorithm to use. Must be an algorithm accepted by Get-FileHash.
+    The hashing algorithm to use. Supported algorithms are "SHA1", "SHA256", "SHA384", "SHA512", and "MD5".
   
   .PARAMETER Encoding
     The encoding format for the hash. Supported values are "hex" and "base64".
@@ -201,17 +201,16 @@ function Get-StringHash {
   )
 
   process {
-    $stream = [System.IO.MemoryStream]::new([byte[]][char[]]$InputString)
-    $fileHashObject = Get-FileHash -InputStream $stream -Algorithm $Algorithm
-    $hash = $fileHashObject.Hash
+    $inputBytes = [System.Text.Encoding]::UTF8.GetBytes($InputString)
+    $hashBytes = [System.Security.Cryptography.HashAlgorithm]::Create($Algorithm).ComputeHash($inputBytes)
 
-    if ('base64' -eq $Encoding) {
-      $bytes = [System.Convert]::FromHexString($hash)
-      $hash = [Convert]::ToBase64String($bytes)
+    switch ($Encoding) {
+      'hex' { $hash = [Convert]::ToHexString($hashBytes); Break }
+      'base64' { $hash = [Convert]::ToBase64String($hashBytes); Break }
     }
 
     [StringHashInfo] @{
-      'Algorithm'   = $fileHashObject.Algorithm
+      'Algorithm'   = $Algorithm
       'Hash'        = $hash
       'InputString' = $InputString
       'Encoding'    = $Encoding

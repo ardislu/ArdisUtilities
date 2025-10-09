@@ -4,6 +4,8 @@ A [PowerShell module](https://docs.microsoft.com/en-us/powershell/module/microso
 
 Requires [PowerShell 7+](https://github.com/PowerShell/PowerShell), which is [different from](https://ardislu.dev/powershell-versions) Windows PowerShell (PowerShell 5).
 
+Code repository mirrors: [GitHub](https://github.com/ardislu/ArdisUtilities), [Codeberg](https://codeberg.org/ardislu/ArdisUtilities), [git.ardis.lu](https://git.ardis.lu/ArdisUtilities)
+
 ## Installation
 
 ### Using `install.ps1`

@@ -11,10 +11,12 @@ on:
 
 jobs:
   make-docs:
-    runs-on: ubuntu-latest
+    name: Make docs branch
+    runs-on: ubuntu-26.04
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Build README.md
         shell: pwsh

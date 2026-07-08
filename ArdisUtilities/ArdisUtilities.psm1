@@ -1039,7 +1039,12 @@ function Open-TemporaryBrowser {
     # Retrieve full paths to Chromium browsers
     # Check the registry key for the Start Menu executable, then the key for the Win + R executable, then fallback to hardcoded default path
     # Wrapping in try/catch is required because -ErrorAction is ignored for terminating errors
-    foreach ($key in @('Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Brave\shell\open\command', 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\brave.exe')) {
+    foreach ($key in @(
+      'Registry::HKEY_CURRENT_USER\SOFTWARE\Clients\StartMenuInternet\Brave\shell\open\command',
+      'Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\brave.exe',
+      'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Brave\shell\open\command',
+      'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\brave.exe'
+    )) {
       try {
         $bravePath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)' -ErrorAction SilentlyContinue
       }
@@ -1047,7 +1052,12 @@ function Open-TemporaryBrowser {
     }
     $bravePath ??= 'C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe'
 
-    foreach ($key in @('Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Google Chrome\shell\open\command', 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe')) {
+    foreach ($key in @(
+      'Registry::HKEY_CURRENT_USER\SOFTWARE\Clients\StartMenuInternet\Google Chrome\shell\open\command',
+      'Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe',
+      'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Google Chrome\shell\open\command',
+      'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe'
+    )) {
       try {
         $chromePath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)' -ErrorAction SilentlyContinue
       }
@@ -1055,7 +1065,12 @@ function Open-TemporaryBrowser {
     }
     $chromePath ??= 'C:\Program Files (x86)\Google\Chrome Dev\Application\chrome.exe'
 
-    foreach ($key in @('Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Microsoft Edge\shell\open\command', 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe')) {
+    foreach ($key in @(
+      'Registry::HKEY_CURRENT_USER\SOFTWARE\Clients\StartMenuInternet\Microsoft Edge\shell\open\command',
+      'Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe',
+      'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Microsoft Edge\shell\open\command',
+      'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe'
+    )) {
       try {
         $edgePath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)' -ErrorAction SilentlyContinue
       }

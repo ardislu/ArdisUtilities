@@ -1015,7 +1015,7 @@ function Open-TemporaryBrowser {
     Finds the full path to the web browser, then passes a temporary profile to open a new isolated instance of the application.
     
   .PARAMETER Browser
-    The web browser to open. Must be 'Brave', 'Chrome', or 'Edge'. Defaults to 'Chrome'.
+    The web browser to open. Must be 'Brave', 'Chrome', 'Edge', or 'Vivaldi'. Defaults to 'Chrome'.
 
   .PARAMETER CORS
     Pass the --disable-web-security flag to disable the same-origin policy, which disables CORS restrictions.
@@ -1029,7 +1029,7 @@ function Open-TemporaryBrowser {
   [OutputType([System.Void])]
   [CmdletBinding()]
   param(
-    [ValidateSet('Brave', 'Chrome', 'Edge')]
+    [ValidateSet('Brave', 'Chrome', 'Edge', 'Vivaldi')]
     [String]$Browser = 'Chrome',
 
     [Switch]$CORS
@@ -1077,6 +1077,19 @@ function Open-TemporaryBrowser {
       catch {}
     }
     $edgePath ??= 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
+
+    foreach ($key in @(
+      'Registry::HKEY_CURRENT_USER\SOFTWARE\Clients\StartMenuInternet\Vivaldi\shell\open\command',
+      'Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\vivaldi.exe',
+      'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Clients\StartMenuInternet\Vivaldi\shell\open\command',
+      'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\vivaldi.exe'
+    )) {
+      try {
+        $vivaldiPath ??= Get-ItemPropertyValue -LiteralPath $key -Name '(default)' -ErrorAction SilentlyContinue
+      }
+      catch {}
+    }
+    $vivaldiPath ??= 'C:\Program Files\Vivaldi\Application\vivaldi.exe'
   }
 
   process {
@@ -1084,6 +1097,7 @@ function Open-TemporaryBrowser {
       'Brave' { $execPath = $bravePath }
       'Chrome' { $execPath = $chromePath }
       'Edge' { $execPath = $edgePath }
+      'Vivaldi' { $execPath = $vivaldiPath }
     }
     $execPath = $execPath.Replace("`"", '') # Registry values have leading and trailing quote literals in the string
 
